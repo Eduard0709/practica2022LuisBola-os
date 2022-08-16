@@ -1,2 +1,2 @@
-# practica2022LuisBola-os
+# practica2022LuisBolanos
 Proyecto realizado en Java
