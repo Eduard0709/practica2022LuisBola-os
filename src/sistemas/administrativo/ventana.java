@@ -2,7 +2,9 @@ package sistemas.administrativo;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -286,13 +288,24 @@ public final class ventana extends JFrame {
             }
         }
         
-        
-        
-        
-        
         JTable tablaClientes = new JTable(datosTabla);
         JScrollPane barraTablaClientes = new JScrollPane(tablaClientes);
         barraTablaClientes.setBounds(10, 10, 300, 150);
         panelControlClientes.add(barraTablaClientes);
+        
+        JButton btnCargarArchivo =  new JButton("Buscar archivo CBV");
+        btnCargarArchivo.setBounds(350, 10, 200, 25);
+        panelControlClientes.add(btnCargarArchivo);
+        ActionListener buscarArchivo = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               File archivoSeleccionado;
+               JFileChooser ventanaSeleccion = new JFileChooser();
+               ventanaSeleccion.showOpenDialog(null);
+               archivoSeleccionado = ventanaSeleccion.getSelectedFile();
+            }
+        };
+        btnCargarArchivo.addActionListener(buscarArchivo);
+        
     }
 }
