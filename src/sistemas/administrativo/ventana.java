@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -16,17 +17,23 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 public final class ventana extends JFrame {
 
     usuario usuSistema[] = new usuario[10];
-    JPanel panelInicioSesion = new JPanel();
-    JPanel panelControl = new JPanel();
-    JPanel panelCrearUsuario = new JPanel();
+    JPanel panelInicioSesion; 
+    JPanel panelControl; 
+    JPanel panelCrearUsuario; 
     int control = 2;
     cliente clientes[] = new cliente[100];
     int controlCliente = 0;
-    JPanel panelControlClientes = new JPanel();
+    JPanel panelControlClientes; 
     int controlClientes = 2;
 
     //Método constructor   
@@ -63,6 +70,7 @@ public final class ventana extends JFrame {
     }
 
     public void objetos() {
+        panelInicioSesion = new JPanel();
         this.getContentPane().add(panelInicioSesion);
         panelInicioSesion.setLayout(null);
 
@@ -136,6 +144,7 @@ public final class ventana extends JFrame {
     }
 
     public void panelControl() {
+        panelControl = new JPanel();
         this.getContentPane().add(panelControl);
         panelControl.setLayout(null);
         this.setSize(600, 500);
@@ -164,6 +173,7 @@ public final class ventana extends JFrame {
     }
 
     public void crearUsuario() {
+        panelCrearUsuario = new JPanel();
         this.getContentPane().add(panelCrearUsuario);
         panelCrearUsuario.setLayout(null);
         this.setSize(500, 450);
@@ -272,12 +282,14 @@ public final class ventana extends JFrame {
     }
 
     public void panelControlCli() {
+        panelControlClientes = new JPanel();
         this.getContentPane().add(panelControlClientes);
         panelControlClientes.setLayout(null);
         this.setSize(750, 500);
         this.setTitle("Administración de clientes");
         panelControl.setVisible(false);
-
+        
+        //crearción de tabla
         DefaultTableModel datosTabla = new DefaultTableModel();
         datosTabla.addColumn("Nombre");
         datosTabla.addColumn("Edad");
@@ -295,8 +307,36 @@ public final class ventana extends JFrame {
         JScrollPane barraTablaClientes = new JScrollPane(tablaClientes);
         barraTablaClientes.setBounds(10, 10, 300, 150);
         panelControlClientes.add(barraTablaClientes);
+        
+        //creación del grafico circular
+        DefaultPieDataset datos = new DefaultPieDataset();
+        datos.setValue("Masculino", totalHombres());
+        datos.setValue("Femenino", totalMujeres());
+        
+        JFreeChart graficoCircular = ChartFactory.createPieChart("Generos en el sistema", datos);
+        ChartPanel panelCircular = new ChartPanel(graficoCircular);
+        panelCircular.setBounds(10, 120, 300, 300);
+        panelControlClientes.add(panelCircular);
+        
+        //creación de gráfico de columnas
+        //rango 1 -> 18 - 30
+        //rango 2 -> 31 - 45
+        //rango 3 -> Mayor a 45
+        //System.out.println("Total de 18 a 30 " + rango18a30());
+        //System.out.println("Total de 31 a 45 " + rango31a45());
+        //System.out.println("Total de 45 o más " + rango45mas());
+        
+        DefaultCategoryDataset datos2 = new DefaultCategoryDataset();
+        datos2.addValue(rango18a30(), "18-30", "Edad");
+        datos2.addValue(rango31a45(), "31-45", "Edad");
+        datos2.addValue(rango45mas(), "Mayor a 45", "Edad");
+        JFreeChart graficoColumnas = ChartFactory.createBarChart("Rango de edades", "Edad", "Escala", datos2, PlotOrientation.VERTICAL, true, true, false);
+        ChartPanel panelColumnas = new ChartPanel(graficoColumnas);
+        panelColumnas.setBounds(350, 120, 300, 300);
+        panelControlClientes.add(panelColumnas); 
+        
 
-        JButton btnCargarArchivo = new JButton("Buscar archivo CBV");
+        JButton btnCargarArchivo = new JButton("Buscar archivo CSV");
         btnCargarArchivo.setBounds(350, 10, 200, 25);
         panelControlClientes.add(btnCargarArchivo);
         ActionListener buscarArchivo = new ActionListener() {
@@ -308,12 +348,106 @@ public final class ventana extends JFrame {
                 archivoSeleccionado = ventanaSeleccion.getSelectedFile();
                 System.out.println("La ubicación del archivo es " + archivoSeleccionado.getPath());
                 leerArchivoCSV(archivoSeleccionado.getPath());
+                panelControlClientes.setVisible(false);
+                panelControlCli();
             }
         };
         btnCargarArchivo.addActionListener(buscarArchivo);
+        
+        JButton btnReporte = new JButton("Crear reporte HTML");
+        btnReporte.setBounds(600, 10, 200, 25);
+        panelControlClientes.add(btnReporte);
+        ActionListener crearHTML = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                crearReporte();
+            }
+        };
+        btnReporte.addActionListener(crearHTML);
+        
+    }  
 
+    public void crearReporte(){
+        try{
+            PrintWriter escribir = new PrintWriter("prueba//ejemplo.txt","UTF-8");
+            escribir.println("Hola esto es una prueba");
+            escribir.println("colegio");
+            escribir.println("5to Baco");
+            escribir.println("progra");
+            escribir.println("fin del archivo");
+            escribir.close();
+            JOptionPane.showMessageDialog(null, "Reporte creado con éxito, este se encuentra en la carpeta REPORTES");
+        }catch(IOException error){
+            JOptionPane.showMessageDialog(null, "No se pudo crear el reporte");
+            System.out.println(error);
+        }
     }
-
+    
+    public int totalHombres(){
+        int total = 0;
+        for(int i = 0;i<100; i++){
+            if(clientes[i] != null){
+                if(clientes[i].genero == 'M'){
+                    total++;
+                }
+            }
+            
+        }
+        return total;
+    }
+    
+    public int totalMujeres(){
+        int total = 0;
+        for(int i = 0;i<100; i++){
+            if(clientes[i] != null){
+                if(clientes[i].genero == 'F'){
+                    total++;
+                }
+            }
+            
+        }
+        return total;
+    }
+    
+     public int rango18a30(){
+        int total = 0;
+        for(int i = 0;i<100; i++){
+            if(clientes[i] != null){
+                if(clientes[i].edad >=18 && clientes[i].edad <=30){
+                    total++;
+                }
+            }
+            
+        }
+        return total;
+    }
+    
+    public int rango31a45(){
+        int total = 0;
+        for(int i = 0;i<100; i++){
+            if(clientes[i] != null){
+                if(clientes[i].edad >=31 && clientes[i].edad <=45){
+                    total++;
+                }
+            }
+            
+        }
+        return total;
+    }
+    
+    public int rango45mas(){
+        int total = 0;
+        for(int i = 0;i<100; i++){
+            if(clientes[i] != null){
+                if(clientes[i].edad >45){
+                    total++;
+                }
+            }
+            
+        }
+        return total;
+    }
+    
     public void leerArchivoCSV(String ruta) {
         try {
             BufferedReader archivoTemporal = new BufferedReader(new FileReader(ruta));
@@ -338,11 +472,11 @@ public final class ventana extends JFrame {
                         clientes[posicion].nit = Integer.parseInt(datosSeparados[3]);
                         controlClientes++;
                     } else {
-                        JOptionPane.showMessageDialog(null, "No se puede registrar más usuarios");
+                        JOptionPane.showMessageDialog(null, "No se puede registrar más clientes");
                     }
                 }
             }
-            JOptionPane.showMessageDialog(null, "Cliente registrados exitosamente, total de clientes " + controlClientes);
+            JOptionPane.showMessageDialog(null, "Clientes registrados exitosamente, total de clientes " + controlClientes);
             archivoTemporal.close();
         } catch (IOException error) {
             JOptionPane.showMessageDialog(null, "No se pudo abrir el archivo CSV");
