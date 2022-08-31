@@ -166,10 +166,6 @@ public final class ventana extends JFrame {
         JButton btnAdminProductos = new JButton("Administración de productos");
         btnAdminProductos.setBounds(170, 120, 250, 25);
         panelControl.add(btnAdminProductos);
-
-        JButton btnReportes = new JButton("Reportes");
-        btnReportes.setBounds(170, 180, 250, 25);
-        panelControl.add(btnReportes);
     }
 
     public void crearUsuario() {
@@ -285,7 +281,7 @@ public final class ventana extends JFrame {
         panelControlClientes = new JPanel();
         this.getContentPane().add(panelControlClientes);
         panelControlClientes.setLayout(null);
-        this.setSize(750, 500);
+        this.setSize(900, 500);
         this.setTitle("Administración de clientes");
         panelControl.setVisible(false);
         
@@ -365,21 +361,82 @@ public final class ventana extends JFrame {
         };
         btnReporte.addActionListener(crearHTML);
         
-    }  
+        JButton btnVolver = new JButton("Volver al menú");
+        btnVolver.setBounds(480, 55, 200, 25);
+        panelControlClientes.add(btnVolver);
+        ActionListener volverInicio = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                panelControl.setVisible(true);
+                panelControlClientes.setVisible(false);
+                volverInicio();
+            }
+        };
+        btnVolver.addActionListener(volverInicio);
+        
+    }
+    
+    public void ordenar(){
+        cliente auxiliar;
+        for(int i=0; i<99; i++){
+            for(int j = 0; j<99; j++){
+                if(clientes[j+1] == null){
+                    break;
+                }else{
+                    if(clientes[j].edad> clientes[j+1].edad){
+                        auxiliar = clientes[j+1];
+                        clientes[j+1] = clientes[j];
+                        clientes[j] = auxiliar;
+                    }
+                }
+            }
+        }
+    }
 
     public void crearReporte(){
         try{
-            PrintWriter escribir = new PrintWriter("prueba//ejemplo.txt","UTF-8");
-            escribir.println("Hola esto es una prueba");
-            escribir.println("colegio");
-            escribir.println("5to Baco");
-            escribir.println("progra");
-            escribir.println("fin del archivo");
+            ordenar();
+            PrintWriter escribirCSS = new PrintWriter("reportes/estilo.css","UTF-8");
+            escribirCSS.print("html {   font-size: 20px; font-family: 'Open Sans', sans-serif; }");
+            escribirCSS.print("h1 { font-size: 60px; text-align: center; }");
+            escribirCSS.print("p, li {   font-size: 16px;   line-height: 2;   letter-spacing: 1px; }");
+            escribirCSS.print("table { table-layout: fixed;   width:250px;}   td{border: 1px solid black; width: 190px; word-wrap: break-word}");
+            escribirCSS.print("html { background-color: #8297f5; }");
+            escribirCSS.print("body { width: 970px; margin: 0 auto; background-color: #bcc7f7; padding: 0 20px 20px 20px; border: 5px solid black; }");
+            escribirCSS.print("h1 { margin: 0; padding: 20px 0; color: #2266f0; text-shadow: 3px 3px 1px black; }");
+            escribirCSS.close();
+            
+            PrintWriter escribir = new PrintWriter("reportes/index.html","UTF-8");
+            escribir.println("<!doctype html>");
+            escribir.println("<html>");
+            escribir.println("<head>");
+            escribir.println("<title>Reporte del sistema </title>");
+            escribir.println("<link rel=\"stylesheet\" href=\"estilo.css\">");
+            escribir.println("</head>");
+            escribir.println("<body>");
+            escribir.println("<h1>Listado de clientes en el sistema</h1>");
+            escribir.println("<br>");
+            
+            escribir.println("<table border = 1>");
+            escribir.println("<tr>");
+            escribir.println("<td>NIT</td> <td>Nombre</td> <td>Edad</td> <td>Genéro</td>");
+            escribir.println("</tr>");
+            
+            for(int i = 0; i<99; i++){
+                if(clientes[i] != null){
+                    escribir.println("<tr>");
+                    escribir.println("<td>" + clientes[i].nit + "</td><td>" + clientes[i].nombre + "</td><td>" + clientes[i].edad + "</td><td>" + clientes[i].genero + "</td>");
+                    escribir.println("</tr>");
+                }
+            }
+            escribir.println("</table");
+            escribir.println("</body>");
+            escribir.println("</html>");
+            
             escribir.close();
             JOptionPane.showMessageDialog(null, "Reporte creado con éxito, este se encuentra en la carpeta REPORTES");
         }catch(IOException error){
             JOptionPane.showMessageDialog(null, "No se pudo crear el reporte");
-            System.out.println(error);
         }
     }
     
